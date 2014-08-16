@@ -47,6 +47,8 @@ OpenGLSurface::OpenGLSurface(QWindow *parent)
 OpenGLSurface::~OpenGLSurface()
 {
     _renderer->cleanup();
+    delete _renderer;
+    delete _context;
 }
 
 
