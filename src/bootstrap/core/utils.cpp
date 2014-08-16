@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 
 #include <GLXW/glxw.h>
@@ -17,22 +18,31 @@ namespace core
 //   C-(''C)
 // -----------------------------------------------------------------------------
 
-void
-setShaderSourceFromFile(GLuint shader, const GLchar *filename)
+std::string
+getShaderSourceFromFile(const std::string &filename)
 {
     std::ifstream file(filename);
     if (!file.is_open()) {
-        std::cerr << "Unable to open file " << filename << std::endl;
-        return;
+        throw std::runtime_error("Unable to open file " + filename + ".");
     }
     
     std::stringstream stream;
     stream << file.rdbuf();
     file.close();
     
-    std::string string = stream.str();
-    const char *buffer = string.c_str();
-    glShaderSource(shader, 1, (GLchar **)&buffer, 0);
+    return stream.str();
+}
+
+GLuint
+initializeShaderFromFile(GLenum shaderType, const std::string &filename)
+{
+    std::string shaderSource = getShaderSourceFromFile(filename);
+    const char *shaderSourceBuffer = shaderSource.c_str();
+    
+    GLuint shader = glCreateShader(shaderType);
+    glShaderSource(shader, 1, (GLchar **)&shaderSourceBuffer, 0);
+    glCompileShader(shader);
+    return shader;
 }
 
 void
