@@ -15,14 +15,38 @@ namespace bootstrap
 namespace glfw
 {
 
-//      Helper functions.
+//      User data.
 // 
 //   C-(''C)
 // -----------------------------------------------------------------------------
 
-void errorCallback(int error, const char *description)
+struct UserData
+{
+    UserData()
+        : renderer(0)
+    {}
+    
+    core::OpenGLRenderer *renderer;
+};
+
+
+
+//      Callbacks.
+// 
+//   C-(''C)
+// -----------------------------------------------------------------------------
+
+void
+errorCallback(int error, const char *description)
 {
     std::cerr << description << std::endl;
+}
+
+void
+framebufferSizeCallback(GLFWwindow *window, int width, int height)
+{
+    UserData *userData = static_cast<UserData *>(glfwGetWindowUserPointer(window));
+    userData->renderer->setSize(width, height);
 }
 
 
@@ -93,14 +117,23 @@ Application::run()
         throw std::runtime_error("Could not initialize the GLFW window.");
     }
     
+    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+    
+    UserData userData;
+    glfwSetWindowUserPointer(window, &userData);
+    
     glfwSetWindowTitle(window, _title.c_str());
     glfwSetWindowPos(window, _positionX, _positionY);
     glfwSetWindowSize(window, _width, _height);
     
     glfwMakeContextCurrent(window);
     
-    core::OpenGLRenderer renderer;
+    int frameBufferWidth, frameBufferHeight;
+    glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
+    
+    core::OpenGLRenderer renderer(frameBufferWidth, frameBufferHeight);
     renderer.setup();
+    userData.renderer = &renderer;
     
     while (!glfwWindowShouldClose(window)) {
         renderer.draw(glfwGetTime());

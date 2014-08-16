@@ -11,12 +11,14 @@ namespace core
 class OpenGLRenderer
 {
 public:
-    OpenGLRenderer();
+    OpenGLRenderer(int width, int height);
     ~OpenGLRenderer();
     
     void setup();
     void draw(double time);
     void cleanup();
+    
+    void setSize(int width, int height);
     
 private:
     class Impl;

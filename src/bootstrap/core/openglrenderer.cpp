@@ -20,18 +20,34 @@ namespace core
 class OpenGLRenderer::Impl
 {
 public:
-    Impl();
+    Impl(GLint width, GLint height);
+    
+    void updateViewport();
     
 public:
     bool setup;
+    
+    GLint width;
+    GLint height;
 };
 
 
 //- Public 'tors.
 
-OpenGLRenderer::Impl::Impl()
-    : setup(false)
+OpenGLRenderer::Impl::Impl(GLint width, GLint height)
+    : setup(false),
+      width(width),
+      height(height)
 {}
+
+
+//- Public members.
+
+void
+OpenGLRenderer::Impl::updateViewport()
+{
+    glViewport(0, 0, width, height);
+}
 
 
 
@@ -42,8 +58,8 @@ OpenGLRenderer::Impl::Impl()
 
 //- Public 'tors.
 
-OpenGLRenderer::OpenGLRenderer()
-    : _d(new Impl)
+OpenGLRenderer::OpenGLRenderer(int width, int height)
+    : _d(new Impl(width, height))
 {}
 
 OpenGLRenderer::~OpenGLRenderer()
@@ -72,6 +88,8 @@ OpenGLRenderer::setup()
     // -------------------------------------------------------------------------
     
     _d->setup = true;
+    
+    _d->updateViewport();
 }
 
 void
@@ -92,6 +110,16 @@ OpenGLRenderer::cleanup()
     // Insert the code to cleanup OpenGL here.
     
     // -------------------------------------------------------------------------
+}
+
+void
+OpenGLRenderer::setSize(int width, int height)
+{
+    _d->width = width;
+    _d->height = height;
+    if (_d->setup) {
+        _d->updateViewport();
+    }
 }
 
 } // namespace core.

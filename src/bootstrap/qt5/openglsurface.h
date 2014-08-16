@@ -8,6 +8,7 @@
 class QEvent;
 class QExposeEvent;
 class QOpenGLContext;
+class QResizeEvent;
 class QScreen;
 
 
@@ -36,6 +37,7 @@ public:
 protected:
     virtual bool event(QEvent *event);
     virtual void exposeEvent(QExposeEvent *event);
+    virtual void resizeEvent(QResizeEvent *event);
     
 private:
     void initialize();

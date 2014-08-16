@@ -2,6 +2,7 @@
 #include <QtCore/QEvent>
 #include <QtGui/QExposeEvent>
 #include <QtGui/QOpenGLContext>
+#include <QtGui/QResizeEvent>
 #include <QtGui/QScreen>
 #include <QtGui/QSurfaceFormat>
 
@@ -96,6 +97,14 @@ OpenGLSurface::exposeEvent(QExposeEvent *event)
     }
 }
 
+void
+OpenGLSurface::resizeEvent(QResizeEvent *event)
+{
+    _renderer->setSize(event->size().width() * devicePixelRatio(),
+                       event->size().height() * devicePixelRatio());
+    requestRefresh();
+}
+
 
 //- Private methods.
 
@@ -124,7 +133,8 @@ OpenGLSurface::initialize()
     _context->setFormat(requestedFormat());
     _context->create();
     
-    _renderer = new core::OpenGLRenderer;
+    _renderer = new core::OpenGLRenderer(width() * devicePixelRatio(),
+                                         height() * devicePixelRatio());
     
     _context->makeCurrent(this);
     _renderer->setup();
