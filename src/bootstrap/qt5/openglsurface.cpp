@@ -46,9 +46,7 @@ OpenGLSurface::OpenGLSurface(QWindow *parent)
 
 OpenGLSurface::~OpenGLSurface()
 {
-    if (_renderer) {
-        _renderer->cleanup();
-    }
+    _renderer->cleanup();
 }
 
 
@@ -119,6 +117,17 @@ OpenGLSurface::initialize()
     
     setFormat(format);
     create();
+    
+    _context = new QOpenGLContext(this);
+    _context->setFormat(requestedFormat());
+    _context->create();
+    
+    _renderer = new core::OpenGLRenderer;
+    
+    _context->makeCurrent(this);
+    _renderer->setup();
+    
+    _time.start();
 }
 
 void
@@ -128,25 +137,7 @@ OpenGLSurface::render()
         return;
     }
     
-    if (!_renderer) {
-        _renderer = new core::OpenGLRenderer;
-    }
-    
-    bool initialized = true;
-    if (!_context) {
-        _context = new QOpenGLContext(this);
-        _context->setFormat(requestedFormat());
-        _context->create();
-        initialized = false;
-    }
-    
     _context->makeCurrent(this);
-    
-    if (!initialized) {
-        _time.start();
-        _renderer->setup();
-    }
-    
     _renderer->draw(_time.elapsed());
     _context->swapBuffers(this);
     
